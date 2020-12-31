@@ -15,6 +15,8 @@ class Player:
             await self.client.usefulCogs['DB'].wins(self.user.id, self.new_elo)
         else:
             await self.client.usefulCogs['DB'].lose(self.user.id, self.new_elo)
+        if  self.db_user['victory']+self.db_user['defeat'] < 10:
+            return
         await set_rank(self.client, self.user, self.new_elo)
 
     @staticmethod
@@ -66,8 +68,8 @@ class Player:
             color = discord.Colour(platformColour),
             title = f"{winner.display_name} beats {loserMem.display_name}!",
         )
-        embed.add_field(name=f"{winner.display_name}", value= f"+{self.get_update_elo_text()} elo", inline=True)
-        embed.add_field(name=f"{loserMem.display_name}", value= f"-{loser.get_update_elo_text()} elo", inline=True)
+        embed.add_field(name=f"{winner.mention}", value= f"+{self.get_update_elo_text()} elo", inline=True)
+        embed.add_field(name=f"{loserMem.mention}", value= f"-{loser.get_update_elo_text()} elo", inline=True)
         embed.set_author(name="1v1 Results", icon_url = platformUrl)
 
         msgtoPublish = await self.client.usefulChannels['feed'].send(embed=embed)

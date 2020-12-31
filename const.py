@@ -44,7 +44,9 @@ ChallengeRooms = {
 
 ### Roles names
 
-UsefulRoles = []
+UsefulRoles = {
+        ('Unranked','Unranked')
+}
 
 RegionRoles = {
         ('EU', 'EU'),

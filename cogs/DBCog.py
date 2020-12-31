@@ -148,7 +148,7 @@ class DBCog(commands.Cog):
         user = await self.get_user(member.id)
         if not user:
             await self.add_user_to_db(member)
-            await member.add_roles(self.client.RankRoles['Inmate'])
+            await member.add_roles(self.client.UsefulRoles['Unranked'])
         else:
             await set_rank(self.client, member, user['elo'])
 

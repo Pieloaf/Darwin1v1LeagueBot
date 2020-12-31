@@ -80,7 +80,7 @@ class AdminDBCog(commands.Cog):
             return
         try:
             with self.client.db.cursor() as cursor:
-                sql = "UPDATE `players` set streak = 0, defeat = 0, victory = 0, elo = 100"
+                sql = "UPDATE `players` set streak = 0, defeat = 0, victory = 0, elo = 1000"
                 cursor.execute(sql)
                 self.client.db.commit()
                 await ctx.channel.send("Reset Leaderboards Successful")
