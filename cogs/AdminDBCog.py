@@ -30,6 +30,7 @@ class AdminDBCog(commands.Cog):
     async def try_make_backup(self, ctx):
         try:
             self.make_backup()
+            await self.client.log("Backup Successful")
         except Exception as e:
             await ctx.channel.send("**Backup failed !**\nError: {}".format(e))
             return False
@@ -80,7 +81,7 @@ class AdminDBCog(commands.Cog):
             return
         try:
             with self.client.db.cursor() as cursor:
-                sql = "UPDATE `players` set streak = 0, defeat = 0, victory = 0, elo = 1000"
+                sql = "UPDATE `players` set streak = 0, defeat = 0, victory = 0, elo = (900 + ((elo-705)/(1455-705)) * (1100-900))"
                 cursor.execute(sql)
                 self.client.db.commit()
                 await ctx.channel.send("Reset Leaderboards Successful")
@@ -90,8 +91,7 @@ class AdminDBCog(commands.Cog):
             await self.client.log(e)
         return False
 
-    
-    def display_db_user(self, user):
+    def display_db_user(self, user):          
         with self.client.db.cursor() as cursor:
             sql = f"SELECT * FROM `players`WHERE user_id = {user}"
             cursor.execute(sql)
@@ -99,7 +99,7 @@ class AdminDBCog(commands.Cog):
             result = self.format_results(cursor)
             self.client.db.commit()
             return(result)
-            
+
 
 def setup(client):
     client.add_cog(AdminDBCog(client))

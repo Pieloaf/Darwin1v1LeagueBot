@@ -22,7 +22,7 @@ class ChallengeCog(commands.Cog):
 
     def get_member_region(self, author):
         region = ''
-        possible_region_roles = ['EU', 'NA-West', 'NA-East', "AP(Sydney)", "AP(Singapore)", "SA"]
+        possible_region_roles = ['EU', 'NA-East']
         for role in author.roles:
             if role.name in possible_region_roles:
                 region += role.name + '\t'
@@ -34,7 +34,7 @@ class ChallengeCog(commands.Cog):
         if mystery == True:
             embed.set_author(name="Mystery Challenger", icon_url=MYSTERY_ICON_URL.format(author.id))
         else:
-            embed.set_author(name=author, icon_url=author.avatar_url)
+            embed.set_author(name=author, icon_url=f'{author.avatar_url}&user_id={author.id}')
         platforms = self.get_member_platform(author)
         if platforms:
             embed.add_field(name='Platform', value=platforms)
@@ -44,9 +44,9 @@ class ChallengeCog(commands.Cog):
         embed.set_footer(text=DELETED_IN.format(2))
         return embed
 
-    def create_embed_msg(self, author, mention, content):
-        e = discord.Embed(color=discord.Color.dark_orange(), title=CHALL_TITLE)
-        e.add_field(name='FIGHT', value=DUEL_REQUEST_MSG.format(author.name, mention, content))
+    def create_embed_msg(self, author, mention):
+        e = discord.Embed(color=discord.Color.dark_orange())
+        e.add_field(name='FIGHT', value=DUEL_REQUEST_MSG.format(author.mention, mention.mention))
         e = self.set_embed_platform_region_footer_author(e, author, False)
         return e
 
@@ -57,12 +57,16 @@ class ChallengeCog(commands.Cog):
         return e
 
     async def challenge(self, message):
+        if await self.already_challenged(message):
+            return
         author = message.author
         content = message.content
         channel = message.channel
         mention = message.mentions[0]
         await message.delete()
-        e = self.create_embed_msg(author, mention, content)
+        if await self.max_challenge(author, mention):
+            return
+        e = self.create_embed_msg(author, mention)
         botMsg = await channel.send(embed=e, delete_after=60 * 2)
         await botMsg.add_reaction(self.client.usefulBasicEmotes['yes'])
         await botMsg.add_reaction(self.client.usefulBasicEmotes['no'])
@@ -70,22 +74,26 @@ class ChallengeCog(commands.Cog):
         self.client.DuelRequests.append({'req': req, 'time': datetime.now()})
 
     def get_embed_author(self, message):
-        if message.embeds[0].author.name != "Mystery Challenger":
-            return discord.utils.get(self.client.server.members, discriminator=message.embeds[0].author.name[-4:], name=message.embeds[0].author.name[:-5])
         
         url = message.embeds[0].author.icon_url
-        result = list(parse_qs(qs=url).values())[0]
-        return self.client.server.get_member(int(result[0]))
+        result = list(parse_qs(qs=url).values())[-1]
+        return self.client.server.get_member(int(result[-1]))
 
     async def already_challenged(self, message):
         async for msg in message.channel.history(limit=50):
             if msg.embeds and len(msg.embeds):
-                auhtorProxy = msg.embeds[0].author
-                author = self.get_embed_author(message)
+                author = self.get_embed_author(msg)
                 if author.id == message.author.id:
                     await message.delete()
                     await message.author.send(TAKE_A_BREATH)
                     return True
+        return False
+    
+    async def max_challenge(self, author, mention):
+        count = await self.client.usefulCogs['DB'].game_count(author.id, mention.id)
+        if count >= 5:
+            await author.send(MAX_GAMES)
+            return True
         return False
 
     async def create_room(self, msg, attacker, defender):
@@ -106,6 +114,7 @@ class ChallengeCog(commands.Cog):
         e = self.create_embed_msg_me(author)
         botMsg = await channel.send(embed=e, delete_after=60 * 2)
         await botMsg.add_reaction(self.client.usefulBasicEmotes['yes'])
+        await botMsg.add_reaction(self.client.usefulBasicEmotes['no'])
 
     @staticmethod
     async def chall_yourself(message):

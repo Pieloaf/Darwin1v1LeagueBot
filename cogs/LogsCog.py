@@ -7,8 +7,13 @@ class LogsCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        db_user = await self.client.usefulCogs['DB'].get_user(after.id)
-        if db_user['victory'] + db_user['defeat'] >= 10:
+        if before.bot:
+            return
+        db_user = await self.client.usefulCogs['DB'].get_user(before.id)
+        if not db_user:
+            await self.client.log(f'could not get {before.id}')
+            return
+        elif db_user['victory'] + db_user['defeat'] < 10:
             return
         for role in self.client.RankRoles:
             wasAttributed = self.client.RankRoles[role] in before.roles

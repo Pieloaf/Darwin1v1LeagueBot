@@ -1,6 +1,7 @@
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound, has_permissions
 from Player import Player
+import os
 
 class Utils(commands.Cog):
     def __init__(self, client):
@@ -82,46 +83,69 @@ class Utils(commands.Cog):
 
     @commands.command()
     @has_permissions(administrator=True)
-    async def remove_elo(self, ctx, user, elo):
-        try:
-            db_user = await self.client.usefulCogs['DB'].get_user(user)
-        except Exception as e:
-            await self.client.log(e)
-            await ctx.channel.send(f"Error updating user. Check <#779488043412226058> for more")
-        else:
-            done = await self.client.usefulCogs['DB'].lose(user, db_user['elo']-int(elo), fix=True)
-            if done == False:
-                await ctx.channel.send(f"Error updating user. Check <#779488043412226058> for more")
-            elif done == True:
-                await ctx.channel.send(f"Successfully removed {elo} elo from <@{user}>")
-
-    @commands.command()
-    @has_permissions(administrator=True)
-    async def add_elo(self, ctx, user, elo):
-        try:
-            db_user = await self.client.usefulCogs['DB'].get_user(user)
-        except Exception as e:
-            await self.client.log(e)
-            await ctx.channel.send(f"Error updating user. Check <#779488043412226058> for more")
-        else:
-            done = await self.client.usefulCogs['DB'].wins(user, db_user['elo']+int(elo), fix=True)
-            if done == False:
-                await ctx.channel.send(f"Error updating user. Check <#779488043412226058> for more")
-            elif done == True:
-                await ctx.channel.send(f"Successfully added {elo} elo to <@{user}>")
-
-    @commands.command()
-    @has_permissions(administrator=True)
     async def show_user(self, ctx, user):
         await ctx.send(f"```{self.client.usefulCogs['AdminDB'].display_db_user(user)}```")
 
     @commands.command()
     @has_permissions(administrator=True)
     async def judge(self, ctx, winner, loser):
-        winner = self.client.get_user(int(winner))
+        winner = self.client.usefulCogs['DB'].get_user(int(winner))
         loser  = self.client.get_user(int(loser))
         await self.client.log('winner: ',winner, 'loser: ', loser)
         await Player(self.client, winner).wins(Player(self.client, loser), ctx.channel)
 
+    @commands.command()
+    @has_permissions(administrator=True)
+    async def challenge_zone(self, ctx, platform):
+        await ctx.send(f"```Welcome to {platform} Challenge Zone: @1v1 to challenge anyone or @ a specific user to send a challenge.```")
+
+    # @commands.command()
+    # @has_permissions(administrator=True)
+    # async def reset_ranks(self, ctx):
+    #     for role in list(self.client.RankRoles.values()):
+    #         for member in role.members:
+    #             print(member.name)
+    #             await member.remove_roles(role)
+    #             await member.add_roles(self.client.usefulRoles['Unranked'])
+    
+    @commands.command()
+    @has_permissions(administrator=True)
+    async def revert(self, ctx, *args):
+        game_ids = []
+        user = None
+        limit = ignore = 0
+        try:
+            game_ids = [int(arg) for arg in args]
+        except ValueError:
+            for arg in args:
+                try:
+                    if arg == '-u':
+                        user = int(args[args.index(arg)+1])
+                    elif arg == '-n':
+                        limit = int(args[args.index(arg)+1])
+                    elif arg == '-i':
+                        ignore = int(args[args.index(arg)+1])
+                except ValueError:
+                    await ctx.send('Error Invalid Syntax')
+                    return
+            toLim = limit+ignore if limit != 0 else 0
+            try:
+                game_ids = [int(game['game_id']) for game in await self.client.usefulCogs['DB'].games_to_revert(int(user), toLim)]
+            except TypeError:
+                await ctx.send("Somthine went wrong :thinking:")
+                return
+        game_ids = game_ids[ignore:]
+        for game_id  in game_ids:
+            game = await self.client.usefulCogs['DB'].get_game(game_id)
+
+            await self.client.usefulCogs['DB'].delete_game(game_id)
+            win = await self.client.usefulCogs['DB'].wins(game['loser'], game['elo_loss'], revert=True)
+            lose = await self.client.usefulCogs['DB'].lose(game['winner'], game['elo_gain'], revert=True)
+            if win == False or lose == False:
+                await ctx.send("Error on reverting game. Check <#779488043412226058> for more")
+            else:
+                await ctx.send(f"Successfully reverted game https://discord.com/channels/779485288996012052/794640641157234698/{str(game_id)}")
+
+        
 def setup(client):
     client.add_cog(Utils(client))

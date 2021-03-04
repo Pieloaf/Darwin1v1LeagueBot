@@ -3,6 +3,7 @@ import inspect
 import discord
 from time import strftime, gmtime
 from Player import Player
+from Active import Active
 from const_messages import \
     CONFLICT_MSG, \
     ADMIT_DEFEAT_MSG, \
@@ -10,8 +11,7 @@ from const_messages import \
     CLAIM_VICTORY_LOG, \
     START_GAME_TITLE, \
     START_DUEL_MSG, \
-    DUEL_RESULTS_MSG, \
-    START_DUEL_TITLE
+    DUEL_RESULTS_MSG
 
 
 class Room:
@@ -31,6 +31,7 @@ class Room:
     async def clear(self):
         for member in self.bracket.members:
             await member.remove_roles(self.bracket)
+        await self.channel.purge()
         await self.channel.purge()
 
     def get_winner_and_loser(self):
@@ -91,12 +92,13 @@ class Room:
 
     async def ask_who_won(self):
         e = discord.Embed(color=discord.Color.green(),
-                          title=START_GAME_TITLE.format(self.attacker.name, self.defender.name))
-        e.add_field(name='Results', value=DUEL_RESULTS_MSG)
+                          title='Results',
+                          description=DUEL_RESULTS_MSG.format(self.client.usefulCustomEmotes['win'], 
+                                self.client.usefulCustomEmotes['lose'], self.client.usefulCustomEmotes['cancel']))
         msg = await self.channel.send(embed=e)
-        await msg.add_reaction(self.client.usefulBasicEmotes['win'])
-        await msg.add_reaction(self.client.usefulBasicEmotes['lose'])
-        await msg.add_reaction(self.client.usefulBasicEmotes['no'])
+        await msg.add_reaction(self.client.usefulCustomEmotes['win'])
+        await msg.add_reaction(self.client.usefulCustomEmotes['lose'])
+        await msg.add_reaction(self.client.usefulCustomEmotes['cancel'])
         self.result_msg = msg
 
     async def enter_score(self, user, victory):
@@ -112,11 +114,11 @@ class Room:
 
     async def init_duel(self):
         e = discord.Embed(color=discord.Color.red(),
-                          title=START_DUEL_TITLE.format(self.attacker.name, self.defender.name))
+                          title= 'Best of 3',
+                          description = START_DUEL_MSG.format(self.attacker.mention))
         e.set_thumbnail(url=self.attacker.avatar_url)
         e.set_image(url=self.defender.avatar_url)
-        e.set_author(name=self.attacker, icon_url=self.attacker.avatar_url)
-        e.add_field(name='Fight !', value=START_DUEL_MSG.format(self.attacker.mention))
+        e.set_author(name=START_GAME_TITLE.format(self.attacker.name, self.defender.name), icon_url='https://cdn.discordapp.com/avatars/779767593418227735/abd2384d28df211f58550249951dd147.png?size=4096')
         await self.channel.send("{} vs {}".format(self.attacker.mention, self.defender.mention), embed=e)
 
     async def delete_request_msg(self):
@@ -133,10 +135,22 @@ class Room:
         try:
             await self.attacker.add_roles(self.bracket)
             await self.defender.add_roles(self.bracket)
+            await self.init_active(self.attacker)
+            await self.init_active(self.defender)
+
         except Exception as e:
             await self.client.log("Can't give {} role to {} or {}. {}".format(
                 self.bracket.name, self.attacker, self.defender, e)
             )
+
+    async def init_active(self, user):
+            activeUser = Active(user, self.client)
+
+            if not activeUser in self.client.Active:
+                await activeUser.start()
+                self.client.Active.append(activeUser)
+            else:
+                await self.client.Active[self.client.Active.index(activeUser)].update()
 
     def get_free_bracket(self):
         for role in self.client.BracketRoles:

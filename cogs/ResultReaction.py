@@ -18,7 +18,7 @@ class ResultReaction(commands.Cog):
     def is_it_a_result_msg(self, react, user):
         if user.bot:
             return False
-        if react.emoji != self.client.usefulBasicEmotes['win'] and react.emoji != self.client.usefulBasicEmotes['lose'] and react.emoji != self.client.usefulBasicEmotes['no']:
+        if react.emoji != self.client.usefulCustomEmotes['win'] and react.emoji != self.client.usefulCustomEmotes['lose'] and react.emoji != self.client.usefulCustomEmotes['cancel']:
             return False
         found_set = self.search_for_set(react, user)
         if not found_set:
@@ -31,12 +31,12 @@ class ResultReaction(commands.Cog):
         if not room:
             return
         victory = 0
-        if react.emoji == self.client.usefulBasicEmotes['no']:
+        if react.emoji == self.client.usefulCustomEmotes['cancel']:
             if react.count > 2:
                 await room.clear()
                 self.client.Rooms.remove(room)
             return
-        elif react.emoji == self.client.usefulBasicEmotes['win']:
+        elif react.emoji == self.client.usefulCustomEmotes['win']:
             victory = 1
         should_end = await room.enter_score(user, victory)
         if should_end:

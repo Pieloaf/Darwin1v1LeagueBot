@@ -21,10 +21,12 @@ class DarwinBot(commands.Bot):
         self.usefulCustomEmotes = {}
         self.usefulBasicEmotes = {}
         self.usefulCogs = {}
+        self.supporterRoles = {}
         self.platformColours = {}
         self.platformImages = {}
         self.DuelRequests = []
         self.Rooms = []
+        self.Active = []
 
         # Non - constant variable initialization
 

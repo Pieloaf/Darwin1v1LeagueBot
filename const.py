@@ -45,7 +45,8 @@ ChallengeRooms = {
 ### Roles names
 
 UsefulRoles = {
-        ('Unranked','Unranked')
+        ('Unranked','Unranked'),
+        ('Active', 'Active')
 }
 
 RegionRoles = {
@@ -62,25 +63,25 @@ PlatformRoles = {
 RankRoles = {
     ("Legend","Legend", 1500),
     ("Master","Master", 1300),
-    ("Diamond","Diamond", 1150),
+    ("Diamond","Diamond", 1200),
+    ("Platinum", "Platinum", 1100),
     ("Gold","Gold", 1000),
-    ("Silver","Silver", 950),
-    ("Bronze","Bronze", 850),
+    ("Silver","Silver", 900),
+    ("Bronze","Bronze", 800),
     ("Steel","Steel", 700),
-    ("Iron","Iron",500),
-    ("Inmate","Inmate", 0)
+    ("Inmate","Inmate", 500)
 }
 
 rolesValues = [
     ("Legend", 1500),
     ("Master", 1300),
-    ("Diamond", 1150),
+    ("Diamond", 1200),
+    ("Platinum", 1100),
     ("Gold", 1000),
-    ("Silver", 950),
-    ("Bronze", 850),
+    ("Silver", 900),
+    ("Bronze", 800),
     ("Steel", 700),
-    ("Iron",500),
-    ("Inmate", 0)
+    ("Inmate", 500)
 ]
 
 BracketRoles = {
@@ -113,11 +114,13 @@ BracketRoles = {
 
 ### Emotes
 
-UsefulCustomEmotes = {}
+UsefulCustomEmotes = {
+    ("win", "win"),
+    ("lose", "lose"),
+    ("cancel", "cancel")
+}
 
 UsefulBasicEmotes = {
-    ("lose", "🟥"),
-    ("win", "🎖️"),
     ("yes", "✅"),
     ("no", "❌")
 }
