@@ -63,6 +63,7 @@ class Utils(commands.Cog):
         self.confirm = None
         if action:
             await self.client.usefulCogs['AdminDB'].reset_leaders(ctx)
+            await self.reset_ranks()
             return
         else:
             return
@@ -89,7 +90,7 @@ class Utils(commands.Cog):
     @commands.command()
     @has_permissions(administrator=True)
     async def judge(self, ctx, winner, loser):
-        winner = self.client.usefulCogs['DB'].get_user(int(winner))
+        winner = self.client.get_user(int(winner))
         loser  = self.client.get_user(int(loser))
         await self.client.log('winner: ',winner, 'loser: ', loser)
         await Player(self.client, winner).wins(Player(self.client, loser), ctx.channel)
@@ -99,14 +100,12 @@ class Utils(commands.Cog):
     async def challenge_zone(self, ctx, platform):
         await ctx.send(f"```Welcome to {platform} Challenge Zone: @1v1 to challenge anyone or @ a specific user to send a challenge.```")
 
-    # @commands.command()
-    # @has_permissions(administrator=True)
-    # async def reset_ranks(self, ctx):
-    #     for role in list(self.client.RankRoles.values()):
-    #         for member in role.members:
-    #             print(member.name)
-    #             await member.remove_roles(role)
-    #             await member.add_roles(self.client.usefulRoles['Unranked'])
+    async def reset_ranks(self):
+        for role in list(self.client.RankRoles.values()):
+            for member in role.members:
+                print(member.name)
+                await member.remove_roles(role)
+                await member.add_roles(self.client.usefulRoles['Unranked'])
     
     @commands.command()
     @has_permissions(administrator=True)
