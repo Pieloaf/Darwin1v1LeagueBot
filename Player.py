@@ -21,7 +21,7 @@ class Player:
         if updated_db_user['streak'] > updated_db_user['max_streak']:
             await self.client.usefulCogs['DB'].update_max_streak(self.user.id)
 
-        if self.db_user['victory']+self.db_user['defeat'] >= 10:
+        if updated_db_user['victory']+updated_db_user['defeat'] >= 10:
             try: 
                 for role in self.user.roles:
                     if role == self.client.usefulRoles['Unranked']:

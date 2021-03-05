@@ -2,6 +2,7 @@ from discord.ext import commands
 from discord.ext.commands import CommandNotFound, has_permissions
 from Player import Player
 import os
+from discord import File
 
 class Utils(commands.Cog):
     def __init__(self, client):
@@ -145,6 +146,33 @@ class Utils(commands.Cog):
             else:
                 await ctx.send(f"Successfully reverted game https://discord.com/channels/779485288996012052/794640641157234698/{str(game_id)}")
 
-        
+
+    @commands.command()
+    @has_permissions(administrator=True)
+    async def patches(self, ctx, season=''):
+        patch_dir = '/var/www/vhosts/darwin1v1league.com/httpdocs/patch_notes/season-{}.json'
+        try:
+            int(season)
+        except ValueError:
+            await ctx.send('Please specify a season for the patch notes')
+            return
+
+        try:
+            await ctx.message.attachments[0].save(f'season-{season}.json')
+        except IndexError as e:
+            if os.path.isfile(patch_dir.format(season)):
+                await ctx.send(content=f'Latest Season {season} Patch Notes:', file=File(patch_dir.format(season)))
+                if os.path.isfile(patch_dir.format(f'{season}-backup')):
+                    await ctx.send(content=f'Previous Season {season} Patch Notes:', file=File(patch_dir.format(f'{season}-backup')))
+            else:
+                await ctx.send(f'No previous patch notes for season {season}')
+            return
+
+        if os.path.isfile(patch_dir.format(season)):
+            os.rename(patch_dir.format(season), patch_dir.format(f'{season}-backup'))
+        os.rename(f'./season-{season}.json', (patch_dir.format(season)))
+        await ctx.send(f'Successfully Updated Patch Notes for Season {season}')
+
+
 def setup(client):
     client.add_cog(Utils(client))
