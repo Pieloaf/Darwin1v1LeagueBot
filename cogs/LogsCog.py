@@ -22,19 +22,19 @@ class LogsCog(commands.Cog):
             if not wasAttributed and isAttributed:
                 if db_user['streak'] > 0:
                     imgURL = "https://cdn.discordapp.com/attachments/787098837516812369/787135511411163136/rnkup.png"
-                    embdCol = 3640761
+                    embdCol = self.client.RankRoles[role].color.value
                     embdTitle = "Rank Up!"
                     change = "Ranked Up"
                 else:
                     imgURL = "https://cdn.discordapp.com/attachments/787098837516812369/787135942283493426/rnkdwn.png"
-                    embdCol = 13395507
+                    embdCol = self.client.RankRoles[role].color.value
                     embdTitle = "Rank Down"
                     change = "Ranked Down"
 
                 embed = discord.Embed(
                     color = discord.Colour(embdCol),
                     title = embdTitle,
-                    description = f"{after.mention} {change} to {self.client.RankRoles[role].mention}"
+                    description = f"{after.mention} {change} to {self.client.RankRoles[role].name}"
                 )
                 embed.set_author(name=after.display_name, icon_url=after.avatar_url)
                 embed.set_thumbnail(url=imgURL)

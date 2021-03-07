@@ -59,6 +59,8 @@ class UserCommands(commands.Cog):
 
     @commands.command()
     async def rules(self, ctx):
+        if ctx.message.channel in self.client.challRooms.values():
+            return
         await ctx.send("""**__Suggested Rules__**
 ```1. 10 Wood
 2. No Items
@@ -68,6 +70,8 @@ class UserCommands(commands.Cog):
 
     @commands.command()
     async def leaderboard(self, ctx):
+        if ctx.message.channel in self.client.challRooms.values():
+            return
         await ctx.send("https://www.darwin1v1league.com/leaderboard")
 
     @commands.command()
