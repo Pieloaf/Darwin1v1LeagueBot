@@ -24,27 +24,29 @@ class UserCommands(commands.Cog):
         platform = db_user['platform']
         platformColour = self.client.platformColours[platform]
         platformImage = self.client.platformImages[platform]
+        unranked = ''
         
         rRank = await self.client.usefulCogs['DB'].get_user_rank(user_id=user.id, platform=platform, region=db_user['region'])
-        if db_user['victory']+db_user['defeat'] < 10:
-            await ctx.send(f"You must play 10 games to receive your first rank. {db_user['victory']+db_user['defeat']}/10 games played")
-            return
         gRank = await self.client.usefulCogs['DB'].get_user_rank(user_id=user.id)
 
         embed = discord.Embed(
             color = discord.Colour(platformColour),
             title = f"{user.display_name}",
+            url = f"https://darwin1v1league.com/profile/{user.id}"
         )
         embed.add_field(name="Region", value= db_user['region'], inline=False)
-        embed.add_field(name="Elo", value= db_user['elo'], inline=False)
-        embed.add_field(name="Qualifying Rank", value= int(rRank['rank']), inline=False)
-        embed.add_field(name="Global Rank", value= int(gRank['rank']), inline=False)
+        if db_user['victory']+db_user['defeat'] < 10:
+            unranked = f"You must play 10 games to receive your first rank. {db_user['victory']+db_user['defeat']}/10 games played"
+        else:
+            embed.add_field(name="Elo", value= db_user['elo'], inline=False)
+            embed.add_field(name="Qualifying Rank", value= int(rRank['rank']), inline=False)
+            embed.add_field(name="Global Rank", value= int(gRank['rank']), inline=False)
         embed.add_field(name="Victories", value= db_user['victory'], inline=True)
         embed.add_field(name="Defeats", value= db_user['defeat'], inline=True)
         
-        embed.set_author(name="Player Card", icon_url = platformImage)
+        embed.set_author(name='Player Card', icon_url = platformImage)
         embed.set_thumbnail(url=user.avatar_url)
-        await ctx.send(embed=embed)
+        await ctx.send(embed=embed, content=unranked)
 
     @commands.command()
     async def flip(self, ctx):
@@ -72,7 +74,7 @@ class UserCommands(commands.Cog):
     async def leaderboard(self, ctx):
         if ctx.message.channel in self.client.challRooms.values():
             return
-        await ctx.send("https://www.darwin1v1league.com/leaderboard")
+        await ctx.send("https://darwin1v1league.com/leaderboard")
 
     @commands.command()
     async def qual(self, ctx):
