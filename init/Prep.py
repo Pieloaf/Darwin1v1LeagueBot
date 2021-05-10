@@ -27,6 +27,13 @@ class Prep(commands.Cog):
                 raise self.client.MissingSomething("{} channel is missing".format(chanName))
             self.client.challRooms[var] = channel
 
+    async def init_cmdChannels(self):
+        for (var, chanName) in CommandsChannels:
+            channel = discord.utils.get(self.client.server.channels, name=chanName)
+            if not channel:
+                raise self.client.MissingSomething("{} channel is missing".format(chanName))
+            self.client.cmdChannels[var] = channel
+
     async def init_roles(self):
         for (var, roleName) in UsefulRoles:
             role = discord.utils.get(self.client.server.roles, name=roleName)
@@ -88,6 +95,7 @@ class Prep(commands.Cog):
             await self.init_server()
             await self.init_channels()
             await self.init_challRooms()
+            await self.init_cmdChannels()
             await self.init_roles()
             await self.init_region_roles()
             await self.init_platform_roles()

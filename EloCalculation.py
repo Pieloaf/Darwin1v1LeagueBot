@@ -7,12 +7,12 @@ class EloCalculation:
         self.K = 30
         self.Pb = self.prob(eloA, eloB)
         self.Pa = self.prob(eloB, eloA)
-        if playedA < 10:
+        if playedA < 1:
             self.multA = 1.5
         else:
             self.multA = 1
 
-        if playedB < 10:
+        if playedB < 1:
             self.multB = 1.5
         else:
             self.multB = 1

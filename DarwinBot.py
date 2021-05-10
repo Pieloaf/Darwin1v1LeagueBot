@@ -13,6 +13,7 @@ class DarwinBot(commands.Bot):
         self.server = None
         self.usefulChannels = {}
         self.challRooms = {}
+        self.cmdChannels = {}
         self.usefulRoles = {}
         self.RankRoles = {}
         self.RegionRoles = {}

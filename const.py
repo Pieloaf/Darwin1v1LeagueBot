@@ -37,9 +37,18 @@ UsefulChannelNames = {
 }
 
 ChallengeRooms = {
-    ("chal", "pc-challenge-zone"),
+    ("chal-pc", "pc-challenge-zone"),
     ("chal-xbox", "xbox-challenge-zone"),
     ("chal-ps4", "ps4-challenge-zone"),
+}
+
+CommandsChannels = {
+    ("commands","commands"),
+    ("admin-chat","admin-chat"),
+    ("mod-chat","mod-chat"),
+    ("1v1-log","1v1-log"),
+    ("carl-log","carl-log"),
+    ("db-update","db-update")
 }
 
 ### Roles names

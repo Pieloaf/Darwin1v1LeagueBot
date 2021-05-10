@@ -4,3 +4,4 @@ botToken
 nohup.out
 dumps/
 dbPass
+tokens.py

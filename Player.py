@@ -21,7 +21,7 @@ class Player:
         if updated_db_user['streak'] > updated_db_user['max_streak']:
             await self.client.usefulCogs['DB'].update_max_streak(self.user.id)
 
-        if updated_db_user['victory']+updated_db_user['defeat'] >= 10:
+        if updated_db_user['victory']+updated_db_user['defeat'] >= 1:
             try: 
                 for role in self.user.roles:
                     if role == self.client.usefulRoles['Unranked']:
@@ -44,11 +44,11 @@ class Player:
         return self.get_text_for_player(self.db_user['elo'], self.new_elo)
 
     def check_unranked(self, loser):
-        if  self.db_user['victory']+self.db_user['defeat'] < 10:
+        if  self.db_user['victory']+self.db_user['defeat'] < 1:
             winEloMsg = "Unranked"
         else:
             winEloMsg = f' won {self.get_update_elo_text()} elo'
-        if  loser.db_user['victory']+loser.db_user['defeat'] < 10:
+        if  loser.db_user['victory']+loser.db_user['defeat'] < 1:
             loseEloMsg =  "Unranked"
         else:
             loseEloMsg = f' lose {loser.get_update_elo_text()} elo'

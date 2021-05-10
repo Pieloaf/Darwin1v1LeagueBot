@@ -192,7 +192,7 @@ class DBCog(commands.Cog):
             regionSelect =  f"where platform = '{platform}' and region = '{region}'"
         try:
             with self.client.db.cursor() as cursor:
-                sql = f"select rank from (select @r:=@r+1 as rank, user_name, user_id from players,(select @r:=0) as r {regionSelect} order by (victory+defeat >=10) desc, elo desc) as card where user_id = {user_id}"
+                sql = f"select rank from (select @r:=@r+1 as rank, user_name, user_id from players,(select @r:=0) as r {regionSelect} order by (victory+defeat >=1) desc, elo desc) as card where user_id = {user_id}"
                 cursor.execute(sql)
                 result = cursor.fetchone()
                 if not result:
@@ -262,7 +262,7 @@ class DBCog(commands.Cog):
     async def get_qual(self, platform, region):
         try:
             with self.client.db.cursor() as cursor:
-                sql = "select user_name from (SELECT user_name, elo FROM `players` WHERE platform=%s and region=%s and (victory+defeat >=10) order by elo desc limit 8) as boop"
+                sql = "select user_name, user_id from (SELECT user_name, user_id, elo FROM `players` WHERE platform=%s and region=%s and (victory+defeat >=1) order by elo desc limit 8) as boop"
                 cursor.execute(sql, (platform, region))
                 result = cursor.fetchall()
                 if not result:

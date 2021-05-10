@@ -14,11 +14,11 @@ class UserCommands(commands.Cog):
 
     @commands.command()
     async def rank(self, ctx):
-        if ctx.message.channel in self.client.challRooms.values():
+        if (ctx.channel not in self.client.cmdChannels.values()) and (ctx.channel not in self.client.usefulChannels.values()):
             return
         try:
             user = ctx.message.mentions[0]
-        except:
+        except Exception:
             user = ctx.author
         db_user = await self.client.usefulCogs['DB'].get_user(user.id)
         platform = db_user['platform']
@@ -35,8 +35,8 @@ class UserCommands(commands.Cog):
             url = f"https://darwin1v1league.com/profile/{user.id}"
         )
         embed.add_field(name="Region", value= db_user['region'], inline=False)
-        if db_user['victory']+db_user['defeat'] < 10:
-            unranked = f"You must play 10 games to receive your first rank. {db_user['victory']+db_user['defeat']}/10 games played"
+        if db_user['victory']+db_user['defeat'] < 1:
+            unranked = f"You must play 1 game to receive your first rank. {db_user['victory']+db_user['defeat']}/1 games played"
         else:
             embed.add_field(name="Elo", value= db_user['elo'], inline=False)
             embed.add_field(name="Qualifying Rank", value= int(rRank['rank']), inline=False)
@@ -61,7 +61,7 @@ class UserCommands(commands.Cog):
 
     @commands.command()
     async def rules(self, ctx):
-        if ctx.message.channel in self.client.challRooms.values():
+        if (ctx.channel not in self.client.cmdChannels.values()) and (ctx.channel not in self.client.usefulChannels.values()):
             return
         await ctx.send("""**__Suggested Rules__**
 ```1. 10 Wood
@@ -72,13 +72,13 @@ class UserCommands(commands.Cog):
 
     @commands.command()
     async def leaderboard(self, ctx):
-        if ctx.message.channel in self.client.challRooms.values():
+        if (ctx.channel not in self.client.cmdChannels.values()) and (ctx.channel not in self.client.usefulChannels.values()):
             return
         await ctx.send("https://darwin1v1league.com/leaderboard")
 
     @commands.command()
     async def qual(self, ctx):
-        if ctx.message.channel in self.client.challRooms.values():
+        if (ctx.channel not in self.client.cmdChannels.values()) and (ctx.channel not in self.client.usefulChannels.values()):
             return
 
         db_user = await self.client.usefulCogs['DB'].get_user(ctx.author.id)
@@ -92,9 +92,10 @@ class UserCommands(commands.Cog):
             await ctx.send('No Qualified Players')
             return
         players = [list(user.values())[0] for user in qualRes]
+        user_ids = [[list(user.values())[1] for user in qualRes]]
         ranked = ''
         for player in players:
-            ranked = ranked + f'\n{players.index(player)+1}. {player}'
+            ranked = ranked + f'\n{players.index(player)+1}. [{player}](https://darwin1v1league.com/profile/{user_ids[0][players.index(player)]})'
 
         embed = discord.Embed(
             color = discord.Colour(platformColour),

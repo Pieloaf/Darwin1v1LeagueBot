@@ -3,11 +3,13 @@ from discord.ext.commands import CommandNotFound, has_permissions
 from Player import Player
 import os
 from discord import File
+import numpy as np
 
 class Utils(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.confirm = None
+        self.season = None
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
@@ -54,17 +56,18 @@ class Utils(commands.Cog):
 
     @commands.command()
     @has_permissions(administrator=True)
-    async def reset_leaderboard(self, ctx):
-        self.confirm = await ctx.send("Are you sure you want to reset the leaderboards?")
-        await self.confirm.add_reaction(self.client.usefulBasicEmotes['yes'])
-        await self.confirm.add_reaction(self.client.usefulBasicEmotes['no'])
+    async def reset_leaderboard(self, ctx, season):
+        self.confirm = [season, await ctx.send("Are you sure you want to reset the leaderboards?")]
+        await self.confirm[1].add_reaction(self.client.usefulBasicEmotes['yes'])
+        await self.confirm[1].add_reaction(self.client.usefulBasicEmotes['no'])
 
     async def confirm_reset(self, action, ctx):
-        await self.confirm.delete()
+        season = self.confirm[0]
+        await self.confirm[1].delete()
         self.confirm = None
         if action:
-            await self.client.usefulCogs['AdminDB'].reset_leaders(ctx)
-            await self.reset_ranks()
+            await self.client.usefulCogs['AdminDB'].reset_leaders(ctx, season)
+            await self.reset_ranks(ctx)
             return
         else:
             return
@@ -73,14 +76,14 @@ class Utils(commands.Cog):
     async def on_reaction_add(self, react, user):
         if user.bot:
             return None
-        if not self.confirm or react.message.id != self.confirm.id:
+        if not self.confirm or react.message.id != self.confirm[1].id:
             return None
         if react.emoji != self.client.usefulBasicEmotes['yes'] and react.emoji != self.client.usefulBasicEmotes['no']:
             return None
 
         if react.emoji == self.client.usefulBasicEmotes['yes']:
             await self.confirm_reset(True, react.message)
-        if react.emoji == self.client.usefulBasicEmotes['no']:
+        elif react.emoji == self.client.usefulBasicEmotes['no']:
             await self.confirm_reset(False, react.message)
 
     @commands.command()
@@ -101,12 +104,15 @@ class Utils(commands.Cog):
     async def challenge_zone(self, ctx, platform):
         await ctx.send(f"```Welcome to {platform} Challenge Zone: @1v1 to challenge anyone or @ a specific user to send a challenge.```")
 
-    async def reset_ranks(self):
+    @commands.command()
+    @has_permissions(administrator=True)
+    async def reset_ranks(self, ctx):
+        await ctx.channel.send("Resetting ranks...")
         for role in list(self.client.RankRoles.values()):
             for member in role.members:
-                print(member.name)
                 await member.remove_roles(role)
                 await member.add_roles(self.client.usefulRoles['Unranked'])
+        await ctx.channel.send(f"{ctx.author.mention} rank reset done")
     
     @commands.command()
     @has_permissions(administrator=True)
@@ -145,7 +151,6 @@ class Utils(commands.Cog):
                 await ctx.send("Error on reverting game. Check <#779488043412226058> for more")
             else:
                 await ctx.send(f"Successfully reverted game https://discord.com/channels/779485288996012052/794640641157234698/{str(game_id)}")
-
 
     @commands.command()
     @has_permissions(administrator=True)

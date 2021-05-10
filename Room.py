@@ -1,6 +1,7 @@
 import asyncio
 import inspect
 import discord
+from RoomImage import ImageGen
 from time import strftime, gmtime
 from Player import Player
 from Active import Active
@@ -116,8 +117,11 @@ class Room:
         e = discord.Embed(color=discord.Color.red(),
                           title= 'Best of 3',
                           description = START_DUEL_MSG.format(self.attacker.mention))
-        e.set_thumbnail(url=self.attacker.avatar_url)
-        e.set_image(url=self.defender.avatar_url)
+        try:
+            e.set_image(url=ImageGen(self.attacker.avatar_url,self.defender.avatar_url))
+        except Exception:
+            e.set_image(url=self.attacker.avatar_url)
+            e.set_thumbnail(url=self.defender.avatar_url)
         e.set_author(name=START_GAME_TITLE.format(self.attacker.name, self.defender.name), icon_url='https://cdn.discordapp.com/avatars/779767593418227735/abd2384d28df211f58550249951dd147.png?size=4096')
         await self.channel.send("{} vs {}".format(self.attacker.mention, self.defender.mention), embed=e)
 

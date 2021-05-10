@@ -13,7 +13,7 @@ class LogsCog(commands.Cog):
         if not db_user:
             await self.client.log(f'could not get {before.id}')
             return
-        elif db_user['victory'] + db_user['defeat'] < 10:
+        elif db_user['victory'] + db_user['defeat'] < 1:
             return
         for role in self.client.RankRoles:
             wasAttributed = self.client.RankRoles[role] in before.roles
