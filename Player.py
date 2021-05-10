@@ -44,14 +44,14 @@ class Player:
         return self.get_text_for_player(self.db_user['elo'], self.new_elo)
 
     def check_unranked(self, loser):
-        if  self.db_user['victory']+self.db_user['defeat'] < 1:
-            winEloMsg = "Unranked"
-        else:
-            winEloMsg = f' won {self.get_update_elo_text()} elo'
-        if  loser.db_user['victory']+loser.db_user['defeat'] < 1:
-            loseEloMsg =  "Unranked"
-        else:
-            loseEloMsg = f' lose {loser.get_update_elo_text()} elo'
+        # if  self.db_user['victory']+self.db_user['defeat'] < 1:
+        #     winEloMsg = "Unranked"
+        # else:
+        winEloMsg = f' won {self.get_update_elo_text()} elo'
+        # if  loser.db_user['victory']+loser.db_user['defeat'] < 1:
+        #     loseEloMsg =  "Unranked"
+        # else:
+        loseEloMsg = f' lose {loser.get_update_elo_text()} elo'
         return(winEloMsg, loseEloMsg)
 
     async def print_new_elos(self, loser, channel):
