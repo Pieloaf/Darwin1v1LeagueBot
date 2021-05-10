@@ -77,7 +77,7 @@ class UserCommands(commands.Cog):
         await ctx.send("https://darwin1v1league.com/leaderboard")
 
     @commands.command()
-    async def qual(self, ctx):
+    async def top(self, ctx):
         if (ctx.channel not in self.client.cmdChannels.values()) and (ctx.channel not in self.client.usefulChannels.values()):
             return
 
